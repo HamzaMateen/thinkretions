@@ -1,0 +1,60 @@
+# [main]
+base_url = "https://thinkretions.com"
+title = "thinkretions"
+description = "materializing the immaterial..."
+
+theme = "terminus"
+
+compile_sass = true
+build_search_index = true
+
+taxonomies = [
+    { name = "tags" },
+    { name = "categories" }
+]
+
+minify_html = false
+
+[markdown]
+highlight_code = true
+render_emoji = true
+bottom_footnotes = true
+
+
+[search]
+index_format = "elasticlunr_json"
+include_title = true 
+include_description = true
+include_content = true
+
+
+[extra]
+author = "Hamza Mateen"
+
+section_path = "blog/_index.md"
+max_posts = 10
+close_responsive_menu_on_resize = true
+copy_button = true
+favicon_emoji = "💭"
+layout = "center"
+show_default_author = false
+
+main_menu = [
+    { name = "blog", url = "blog", trailing_slash = true },
+    # { name = "archive", url = "archive", trailing_slash = true },
+    { name = "tags", url = "tags", trailing_slash = true },
+    { name = "projects", url = "projects", trailing_slash = true },
+    { name = "github", url = "https://github.com/hamzamateen", new_tab = true },
+]
+
+socials = [
+    { name = "email", url = "mailto:me@thinkretions.com" },
+    { name = "github", url = "https://github.com/HamzaMateen" },
+    { name = "linkedin", url = "https://www.linkedin.com/in/hamzamateen765" }
+]
+
+# This will be overridden in config.local.toml for dev
+[extra.content_security_policy]
+enable = false
+
+
