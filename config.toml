@@ -1,5 +1,7 @@
 # [main]
-base_url = "https://thinkretions.com"
+# base_url = "https://thinkretions.com"
+base_url = "https://hamzamateen.github.io/thinkretions/"
+
 title = "thinkretions"
 description = "materializing the immaterial..."
 
