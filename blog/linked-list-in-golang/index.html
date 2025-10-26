@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Linked List in Golang | thinkretions</title>
+
+    <link rel="preload" href="https://hamzamateen.github.io/thinkretions/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://hamzamateen.github.io/thinkretions/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://hamzamateen.github.io/thinkretions/css/style.css?h=fd30ebca55fd38ab02dd">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💭</text></svg>">
+    <script src="https://hamzamateen.github.io/thinkretions/js/auto-close-popover-on-resize.js?h=4ef87d6fc7b98b22e044" defer></script>
+    <script src="https://hamzamateen.github.io/thinkretions/js/copy-code-to-clipboard.js?h=6aac77c47d552a0ac847" defer></script>
+    <script src="https://hamzamateen.github.io/thinkretions/js/theme-switcher.js?h=f511cf3b81ddb6475538" defer></script>
+
+    <link rel="canonical" href="https://hamzamateen.github.io/thinkretions/blog/linked-list-in-golang/">
+    
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#211f1a">
+    <meta name="color-scheme" content="dark">
+
+    <meta property="og:title" content="Linked List in Golang">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://hamzamateen.github.io/thinkretions/blog/linked-list-in-golang/">
+    <meta property="og:description" content="materializing the immaterial...">
+    <meta property="og:site_name" content="thinkretions">
+    <meta property="og:updated_time" content="2025-10-26T18:12:04.661490489+00:00">
+    <meta property="article:published_time" content="2025-02-22T00:00:00+00:00">
+</head>
+
+<body class="layout-center">
+    <header class="header">
+        <div class="header-container">
+            <span class="header-logo-container">
+                <a href="https://hamzamateen.github.io/thinkretions">
+                    <span class="logo">thinkretions</span>
+                </a>
+            </span>
+        </div>
+        <nav class="main-menu" aria-label="Main Menu">
+            <a class="skip-to-content" href="#main">Skip to main content</a>
+            <button class="main-menu-dropdown-button" popovertarget="nav-menu">Menu</button>
+            <ul id="nav-menu" class="main-menu-items" aria-label="Site Navigation" popover>
+                <li><a href="https://hamzamateen.github.io/thinkretions/blog/">blog</a></li>
+                <li><a href="https://hamzamateen.github.io/thinkretions/tags/">tags</a></li>
+                <li><a href="https://hamzamateen.github.io/thinkretions/projects/">projects</a></li>
+                <li><a href="https://github.com/hamzamateen" target="_blank">github</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main id="main">
+        <article class="post content">
+            <header>
+                <h1 class="post-title">
+                    <a href="https://hamzamateen.github.io/thinkretions/blog/linked-list-in-golang/">Linked List in Golang</a>
+                </h1>
+                <ul class="post-meta">
+                    <li title="Published on 2025-02-22"><time datetime="2025-02-22">2025.02.22</time></li>
+                    <li role="separator" aria-hidden="true">::</li>
+                    <li title="1923 words"><time datetime="PT10M">1&lt;1 min</time> read</li>
+                </ul>
+            </header>
+
+<h2 id="table-of-contents">Table of Contents<a class="post-anchor" href="#table-of-contents" aria-label="Anchor link for: table-of-contents"><span aria-hidden="true">#</span></a>
+</h2>
+<ul>
+<li><a href="https://iq.opengenus.org/linked-list-in-golang/#introduction">Introduction</a></li>
+<li><a href="https://iq.opengenus.org/linked-list-in-golang/#why">So, Why Linked Lists?</a></li>
+<li><a href="https://iq.opengenus.org/linked-list-in-golang/#implementation">Implementation in Go</a>
+<ul>
+<li><a href="https://iq.opengenus.org/linked-list-in-golang/#node">Defining Node*</a></li>
+<li><a href="https://iq.opengenus.org/linked-list-in-golang/#linkedlist">Defining Linked List</a></li>
+<li><a href="https://iq.opengenus.org/linked-list-in-golang/#insert">Insert A Node at Given Index</a></li>
+<li><a href="https://iq.opengenus.org/linked-list-in-golang/#traverse">Traversing the Linked List</a></li>
+<li><a href="https://iq.opengenus.org/linked-list-in-golang/#delete">Deleting a Node at Given Index</a>
+<ul>
+<li><a href="https://iq.opengenus.org/linked-list-in-golang/#garbagecollection">Garbage Collection in Go</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="introduction">Introduction<a class="post-anchor" href="#introduction" aria-label="Anchor link for: introduction"><span aria-hidden="true">#</span></a>
+</h2>
+<p>A Linked List is a linear data structure in Computer Science that stores data in a <strong>non-contiguous</strong> fashion in computer memory. It comprises nodes or elements that are interconnected through logical links. These links are established from one node to another using <strong>memory addresses</strong>.</p>
+<h5 id="logical-representation">Logical Representation<a class="post-anchor" href="#logical-representation" aria-label="Anchor link for: logical-representation"><span aria-hidden="true">#</span></a>
+</h5>
+<p><img src="https://iq.opengenus.org/content/images/2023/10/linkedlist.png" alt="linkedlist" /></p>
+<p>Each node consists of, at least, two basic parts. One is called the <em>data</em> or payload part and the other is the link or <em>pointer</em> part. The former stores the data intended for the current node while the pointer part links the current node to the next one in the list or it points to the end of the list.</p>
+<p>Linked Lists are extensively employed in real-world software development. They are truly fundamental to the implementation of other data structures such as Trees, Stacks, Queues, and Adjacency Matrix. Linked Lists are also the basis to Dynamic Memory Management (DMM).</p>
+<h2 id="why">Why?<a class="post-anchor" href="#why" aria-label="Anchor link for: why"><span aria-hidden="true">#</span></a>
+</h2>
+<p>Computer memory is fundamentally laid out in <strong>sequential</strong> manner. When our program tries to store some data onto the RAM, it contacts the <strong>memory allocator</strong> of our system and requests for the required amount of <strong>bytes</strong>. The memory allocator then allocates, if available, the required amount from our RAM, and returns its address back to our program.</p>
+<p>Sequential layout is an <strong>inherent</strong> property of the memory management mechanism, and comes with its own <em>benefits and drawbacks</em>.</p>
+<h3 id="for-example">For example,<a class="post-anchor" href="#for-example" aria-label="Anchor link for: for-example"><span aria-hidden="true">#</span></a>
+</h3>
+<p>If our program asks for allocation of an <strong>array</strong>, the memory allocator simply allocates a sequence of bytes sufficient enough and returns back the address to the start of the array. The array is then <em>easy</em> to work with, <em>manipulate</em> and/or <em>traverse</em>. We just need the <strong>base address</strong> to point to the start of the array and use <strong>offset</strong> bytes of comprising data type in order to address our array. While this sounds pretty nifty, these comforts bite back when we need to either <strong>scale up</strong> or <strong>scale down</strong> our memory requirements.</p>
+<h5 id="an-array-of-capacity-7">An Array of Capacity, 7.<a class="post-anchor" href="#an-array-of-capacity-7" aria-label="Anchor link for: an-array-of-capacity-7"><span aria-hidden="true">#</span></a>
+</h5>
+<p><img src="https://iq.opengenus.org/content/images/2023/10/array.png" alt="array" /></p>
+<p>Static data structures like arrays allocate memory at the compile time, often leading to inefficiencies. Unused memory can go to waste, while in high-demand situations it might be easily depleted, causing memory shortages. The scaling challenge of both <strong>excess</strong> and <strong>shortage</strong> illustrate the limitations of static memory allocation.</p>
+<h3 id="introducing-linked-lists">Introducing Linked Lists ...<a class="post-anchor" href="#introducing-linked-lists" aria-label="Anchor link for: introducing-linked-lists"><span aria-hidden="true">#</span></a>
+</h3>
+<p>Linked lists offer a <strong>dynamic</strong> solution to memory management. Unlike static data structures such as arrays, linked list allocates memory as needed over time. This dynamic allocation results in efficient resource utilization and avoids memory waste.</p>
+<h5 id="memory-layout-of-a-linked-list">Memory Layout of a Linked List<a class="post-anchor" href="#memory-layout-of-a-linked-list" aria-label="Anchor link for: memory-layout-of-a-linked-list"><span aria-hidden="true">#</span></a>
+</h5>
+<p><img src="https://iq.opengenus.org/content/images/2023/10/memorylinked.png" alt="memorylinked" /></p>
+<p>A linked list consists of nodes, logically connected to each other via memory addresses. The logical neighboring node <em>may not</em> be a physical neighbor of the previous or next node in the memory. This dynamic nature eliminates the scaling issues found in sequential data structures.</p>
+<h2 id="implementation">Implementation<a class="post-anchor" href="#implementation" aria-label="Anchor link for: implementation"><span aria-hidden="true">#</span></a>
+</h2>
+<p>Let's implement a linked list in Go language. Go is a <em>statically typed, compiled, high-level and an expressive</em> programming language which is syntactically very similar to <strong>C</strong> class of programming languages. We are going to implement the essential functionality of a linked list in order to demonstrate how a linked list is created, used, and manipulated. Our goal is to write an API that is capable of the following;</p>
+<ul>
+<li>Insertion of a node at any valid index given.</li>
+<li>Traversal of the linked list</li>
+<li>Deletion of a node at the index provided.</li>
+</ul>
+<p>We will try to take care of <em>edge cases</em> and follow <em>best practices</em>. Let's begin;</p>
+<h3 id="node">Node<a class="post-anchor" href="#node" aria-label="Anchor link for: node"><span aria-hidden="true">#</span></a>
+</h3>
+<p>The <code>Node</code> represents the fundamental unit of linked list data structure, encapsulating both the <em>payload</em> as well as the <em>reference</em> to the next node in the sequence.<br />
+We can use the <code>struct</code> type in Go to define a node.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>type Node struct {
+</span><span>    data interface{}
+</span><span>    next *Node
+</span><span>}
+</span></code></pre>
+<p>Our <code>Node</code> has <em>data</em> field of type <em>empty interface</em> meaning that it can store data of any data type. The other field is named <em>next</em> which is of type <code>*Node</code>, translating to the fact that it can contain reference to the next node in the list.</p>
+<h3 id="linkedlist">LinkedList<a class="post-anchor" href="#linkedlist" aria-label="Anchor link for: linkedlist"><span aria-hidden="true">#</span></a>
+</h3>
+<p>Our next step is to define a struct named <code>LinkedList</code>, which consists of two fields, namely <code>head</code> and <code>len</code>;</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>type LinkedList struct {
+</span><span>head *Node
+</span><span>len  int32
+</span><span>}
+</span></code></pre>
+<p><code>head</code> is a pointer of type <code>*Node</code> because it would hold the address of the first node in the list. Meanwhile, <code>len</code> keeps the count of nodes present in the list. The default values of <code>head</code> and <code>len</code> are <code>nil</code> and <code>0</code>, respectively. These are automatically assigned by the Go runtime</p>
+<p>We are now ready to implement the routines for carrying out the functional operations on our <code>LinkedList</code> struct.<br />
+Firstly, we tackle the <strong>insertion</strong> operation.</p>
+<h3 id="insert">Insert<a class="post-anchor" href="#insert" aria-label="Anchor link for: insert"><span aria-hidden="true">#</span></a>
+</h3>
+<p>The prototype of our <code>insert</code> method is as follows;</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>func (list *LinkedList) insert(value interface{}, index int32) error {
+</span><span>    // our implementation
+</span><span>    // ...
+</span><span>}
+</span></code></pre>
+<p>It takes two parameters;</p>
+<ul>
+<li>The <code>value</code> to be stored in the node</li>
+<li><code>index</code> at which the value is to be inserted.</li>
+</ul>
+<p><code>insert</code> returns an error in case of unsuccessful insert operation.<br />
+Following the best practices, we will make sure that the edge cases are covered and appropriate error message is returned in case of errors. The list should be <code>0</code> indexed to imitate the behavior that of arrays or slices.</p>
+<p>Let's work our way through it. First of all, we make sure that the the <code>index</code> given is neither less than <code>0</code> nor greater than size of the list.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>if index &lt; 0 || index &gt; list.len {
+</span><span>    return errors.New(&quot;index out of bounds&quot;)
+</span><span>}
+</span></code></pre>
+<p>If the conditions are not met, we construct a new <code>index out of bounds</code> error using <code>errors</code> package and return it to caller function, effectively halting the insertion operation.</p>
+<p>In case of index within bounds, we move to the next step, that is, the creation of a new node.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>// create a new temporary node
+</span><span>var newNode *Node = new(Node)
+</span><span>
+</span><span>// set up the fields
+</span><span>(*newNode).data = value
+</span><span>(*newNode).next = nil 
+</span></code></pre>
+<p>We create a node on the <code>heap</code> memory using Go's <code>new</code> allocation primitive, which returns the memory address of the newly created node. Which is stored in the <code>newNode</code> pointer. We assign the given <code>value</code> to the <code>data</code> fields and set the <code>next</code> field to <code>nil</code> because this node isn't yet a part of the list.</p>
+<p>After the successful creation of <code>newNode</code>, it is time to insert into the list. We have to take the index into account, if its value is <code>0</code> then <code>newNode</code> is supposed to be the first node in the list and <code>head</code> pointer of the list is going to point towards it.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>if index == 0 {
+</span><span>    newNode.next = list.head
+</span><span>    list.head = newNode
+</span><span>    list.len += 1
+</span><span>    return nil
+</span><span>}
+</span></code></pre>
+<p><code>newNode</code>'s <code>next</code> field is assigned the value of current <code>head</code>. If the <code>list</code> is empty, it would be<code>nil</code>, otherwise, it would point to the first node in the list. The length of list is incremented by <code>1</code> and <code>nil</code> is returned. This marks a successful insertion at the start of the list.</p>
+<p>Now, we need to tackle the general case, that is, insertion at any valid index. This involves a better planning strategy because we need to take care of the previous node in the list as well.</p>
+<p>The algorithm to insert node at an arbitrary index, say <code>n</code>, is as follows:</p>
+<ul>
+<li>Create a <code>tempHead</code> pointer that serves as an alias for list's <code>head</code> pointer..</li>
+<li>Scan the list by utilizing the <code>tempHead</code> and get to the <code>n-1</code><sup>th</sup> node.</li>
+<li>Assign <code>newNode</code>'s <code>next</code> field to the <code>n-1</code><sup>th</sup> node's <code>next</code> field.</li>
+<li>Now point the <code>n-1</code><sup>th</sup> node's <code>next</code> to the newly created node.</li>
+</ul>
+<p>The Go code to achieve this looks like this;</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>// create a temporary head so that actual head variable isn&#39;t disturbed.
+</span><span>var tempHead *Node = list.head
+</span><span>
+</span><span>// get to n - 1th node
+</span><span>var i int32
+</span><span>for i = 0; i &lt; (index - 1); i++ {
+</span><span>    tempHead = tempHead.next
+</span><span>}
+</span><span>
+</span><span>// now we are at n - 1th element or index
+</span><span>newNode.next = tempHead.next
+</span><span>tempHead.next = newNode
+</span><span>
+</span><span>// increase the length of list
+</span><span>list.len += 1
+</span><span>
+</span><span>return nil
+</span></code></pre>
+<p>Below is a visual illustration of this procedure.</p>
+<p><img src="https://iq.opengenus.org/content/images/2023/11/insert.png" alt="insert" /></p>
+<p>The <code>newNode</code> ends up at the provided <code>index</code>. This concludes the implementation of <code>insert</code> operation. The final results looks like this:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>func (list *LinkedList) insert(value interface{}, index int32) error {
+</span><span>var newNode *Node = new(Node)
+</span><span>
+</span><span>(*newNode).data = value
+</span><span>(*newNode).next = nil 
+</span><span>
+</span><span>if index &lt; 0 || index &gt; list.len {
+</span><span>return errors.New(&quot;index out of bounds&quot;)
+</span><span>}
+</span><span>
+</span><span>if index == 0 {
+</span><span>newNode.next = list.head
+</span><span>list.head = newNode
+</span><span>list.len += 1
+</span><span>return nil
+</span><span>}
+</span><span>    
+</span><span>var tempHead *Node = list.head
+</span><span>
+</span><span>var i int32
+</span><span>for i = 0; i &lt; (index - 1); i++ {
+</span><span>tempHead = tempHead.next
+</span><span>}
+</span><span>
+</span><span>newNode.next = tempHead.next
+</span><span>tempHead.next = newNode
+</span><span>
+</span><span>list.len += 1
+</span><span>return nil
+</span><span>}
+</span></code></pre>
+<p>Now let's implement <code>traverse</code> method.</p>
+<h3 id="traverse">Traverse<a class="post-anchor" href="#traverse" aria-label="Anchor link for: traverse"><span aria-hidden="true">#</span></a>
+</h3>
+<blockquote>
+<p>Scanning through the <code>list</code> from start to finish and printing each node's value is referred to as traversal.</p>
+</blockquote>
+<p>The method's prototype is as follows:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>func (list *LinkedList) traverse() {
+</span><span>    // implementation code
+</span><span>    // ....
+</span><span>}
+</span></code></pre>
+<p>Traversal is straightforward to implement. We create a temporary pointer initialized with <code>list.head</code>. We then run a loop till the end of the list. We might either utilize the list's <code>length</code> to determine its end or use the fact that the <code>list</code> ends with the last node's <code>next</code> field pointing towards <code>nil</code>.<br />
+The latter is a more concise option. We check the current node's <code>next</code> field, and stop the loop if points to <code>nil</code>.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>func (list *LinkedList) traverse() {
+</span><span>    // If the list is empty, return gracefully!
+</span><span>    if list.head == nil {
+</span><span>        return
+</span><span>    }
+</span><span>
+</span><span>    tempHead := list.head
+</span><span>    for tempHead != nil {
+</span><span>        fmt.Printf(&quot;%+v\t&quot;, tempHead.data)
+</span><span>        tempHead = tempHead.next
+</span><span>    }
+</span><span>    fmt.Println()
+</span><span>}
+</span></code></pre>
+<p><code>\t</code> used in <code>fmt.Printf()</code> prints a <code>tab</code> after each value. The value stored in current node's <code>data</code> is printed in each iteration and then <code>tempHead</code> is assigned the next node's address in the list, thereby moving forward in the list.</p>
+<p>Now that we are done with implementing <code>insert</code> and <code>traverse</code> operations, we move towards last important method which is <code>delete</code> operation.</p>
+<h3 id="delete">Delete<a class="post-anchor" href="#delete" aria-label="Anchor link for: delete"><span aria-hidden="true">#</span></a>
+</h3>
+<p><code>delete</code> is logically very similar to <code>insert</code> and involves almost the same steps, but instead of inserting the node, we remove a node from the list at the given <code>index</code>.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>func (list *LinkedList) delete(index int32) error {
+</span><span>    // implementation 
+</span><span>}
+</span></code></pre>
+<p>Our first step is to ensure <code>index</code> range safety. This is different than that of <code>insert</code>. The index specified should be in range of <code>0 to (n-1)</code> instead of being in range <code>1 to n</code>. This is because a node can be inserted at the n<sup>th</sup> index but removal requires a node to be already present at the given index.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>// ensure safe index range for deletion
+</span><span>if index &lt; 0 || index &gt; list.len-1 {
+</span><span>    return errors.New(&quot;index out of bounds&quot;)
+</span><span>}
+</span></code></pre>
+<p>If index is in range, we handle the special case of deletion which pertains to removal of a node from the beginning of the <code>list</code>.<br />
+We simply make the <code>head</code> pointer point to the <code>next</code> pointer of the node at <code>index</code> <code>0</code>, essentially deleting the first node.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>// Special case: removing the first element from the list.
+</span><span>if index == 0 {
+</span><span>    list.head = list.head.next // &lt;-- No Resource Deallocation
+</span><span>    list.len -= 1
+</span><span>
+</span><span>    return nil
+</span><span>}
+</span></code></pre>
+<h6 id="garbagecollection">GarbageCollection<a class="post-anchor" href="#garbagecollection" aria-label="Anchor link for: garbagecollection"><span aria-hidden="true">#</span></a>
+</h6>
+<p>This is the most important part to understand. You might have noticed that we didn't have to deallocate the node ourselves like we do in <strong>C</strong> class of languages, and this is because of <strong>GO's Garbage Collection</strong>.</p>
+<blockquote>
+<p>Go is a <strong>garbage collected</strong> language. The application <strong>binary</strong> generated by its compiler actually comes with a <strong>managed runtime</strong>. When the binary is executed, the <strong>garbage collector</strong> runs in the background tracking the program's resources.</p>
+</blockquote>
+<p>When a resource, such as, this <em>deleted</em> node is found to be lurking around in the memory without any live reference , the <code>node</code>'s resources are automatically released and it is removed from the memory by the GC. This way, the programmer doesn't have to do the memory management manually, thus increasing productivity and development speed.</p>
+<p>Now, onto the general case of deletion at an arbitrary index.<br />
+The steps are pretty similar to that of insertion operation.</p>
+<ul>
+<li>Create <code>tempHead</code> pointing towards <code>list.head</code>.</li>
+<li>Scan the list by utilizing the <code>tempHead</code> and get to the <code>index-1</code><sup>th</sup> node.</li>
+<li>Assign this node's <code>next</code> the next node's <code>next</code>, thereby skipping the node present at <code>index</code> position.</li>
+</ul>
+<p>in <code>delete</code> method, we add the following:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>tempHead := list.head
+</span><span>for i := 0; i &lt; int(index)-1; i++ {
+</span><span>    tempHead = tempHead.next
+</span><span>}
+</span><span>
+</span><span>// delete the node
+</span><span>tempHead.next = tempHead.next.next
+</span><span>list.len -= 1
+</span></code></pre>
+<p>The following visual illustration helps understand this better,</p>
+<p><img src="https://iq.opengenus.org/content/images/2023/11/delete.png" alt="delete" /></p>
+<p>Following is the final form of <code>delete</code> method.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>func (list *LinkedList) delete(index int32) error {
+</span><span>    // ensure safe index range for deletion
+</span><span>    if index &lt; 0 || index &gt; list.len-1 {
+</span><span>        return errors.New(&quot;index out of bounds&quot;)
+</span><span>    }
+</span><span>    
+</span><span>    // Special case: removing the first element from the list.
+</span><span>    if index == 0 {
+</span><span>        list.head = list.head.next // &lt;-- No Resource Deallocation
+</span><span>        list.len -= 1
+</span><span>
+</span><span>        return nil
+</span><span>    }
+</span><span>    
+</span><span>    // general case
+</span><span>    tempHead := list.head
+</span><span>    for i := 0; i &lt; int(index)-1; i++ {
+</span><span>        tempHead = tempHead.next
+</span><span>    }
+</span><span>
+</span><span>    // delete the node
+</span><span>    tempHead.next = tempHead.next.next
+</span><span>    list.len -= 1
+</span><span>
+</span><span>    return nil
+</span><span>}
+</span></code></pre>
+<p>This concludes the implementation of a working linked list in GO programming language. A lot of details, optimizations and functionalities have been skipped over in favor of brevity, and conciseness of this write up.</p>
+<p><strong>I hope that you picked up on a thing or two, peace!</strong></p>
+
+        </article>
+        <nav class="post-navigation">
+            <header class="post-navigation-title">
+                <h2>Read More Posts</h2>
+                <hr>
+            </header>
+            <div class="post-navigation-buttons">
+                <a rel="next" href="https://hamzamateen.github.io/thinkretions/blog/go-interfaces-guide/" aria-label="Next article">
+                    <span aria-hidden="true">&lt;&nbsp;[</span>Go Interfaces: A Beginner&#x27;s Guide<span aria-hidden="true">]</span>
+                </a>
+                <span aria-hidden="true" role="separator">::</span>
+                <a rel="prev" href="https://hamzamateen.github.io/thinkretions/blog/receiver-parameter-idiom-go/" aria-label="Prev article">
+                    <span aria-hidden="true">[</span>Receiver Parameter Idiom in Golang<span aria-hidden="true">]&nbsp;&gt;</span>
+                </a>
+            </div>
+        </nav>
+    </main>
+    <footer class="footer">
+        <address class="socials">
+            <ul>
+                <li>
+                    <a class="social-link" rel="me" href="mailto:me@thinkretions.com" title="email">
+                        <svg role="img" aria-label="email">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/email.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a class="social-link" rel="me" href="https://github.com/HamzaMateen" title="github">
+                        <svg role="img" aria-label="github">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/github.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a class="social-link" rel="me" href="https://www.linkedin.com/in/hamzamateen765" title="linkedin">
+                        <svg role="img" aria-label="linkedin">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/linkedin.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </address>
+        <p class="copyright">
+            <span>© <time>2025</time></span>
+            <span>Powered by <a href="https://www.getzola.org">Zola</a></span>
+            <span>Theme by <a href="https://eyalkalderon.com">ebkalderon</a></span>
+        </p>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Introduction to concurrency in Golang | thinkretions</title>
+
+    <link rel="preload" href="https://hamzamateen.github.io/thinkretions/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://hamzamateen.github.io/thinkretions/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://hamzamateen.github.io/thinkretions/css/style.css?h=fd30ebca55fd38ab02dd">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💭</text></svg>">
+    <script src="https://hamzamateen.github.io/thinkretions/js/auto-close-popover-on-resize.js?h=4ef87d6fc7b98b22e044" defer></script>
+    <script src="https://hamzamateen.github.io/thinkretions/js/copy-code-to-clipboard.js?h=6aac77c47d552a0ac847" defer></script>
+    <script src="https://hamzamateen.github.io/thinkretions/js/theme-switcher.js?h=f511cf3b81ddb6475538" defer></script>
+
+    <link rel="canonical" href="https://hamzamateen.github.io/thinkretions/blog/intro-to-concurrency-in-golang/">
+    
+    <meta name="author" content="Hamza Mateen">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#211f1a">
+    <meta name="color-scheme" content="dark">
+
+    <meta property="og:title" content="Introduction to concurrency in Golang">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://hamzamateen.github.io/thinkretions/blog/intro-to-concurrency-in-golang/">
+    <meta property="og:description" content="materializing the immaterial...">
+    <meta property="og:site_name" content="thinkretions">
+    <meta property="og:updated_time" content="2025-10-26T18:12:04.661485797+00:00">
+    <meta property="article:published_time" content="2025-10-26T00:00:00+00:00">
+    <meta property="article:tag" content="showcase">
+    <meta property="article:tag" content="shortcodes">
+</head>
+
+<body class="layout-center">
+    <header class="header">
+        <div class="header-container">
+            <span class="header-logo-container">
+                <a href="https://hamzamateen.github.io/thinkretions">
+                    <span class="logo">thinkretions</span>
+                </a>
+            </span>
+        </div>
+        <nav class="main-menu" aria-label="Main Menu">
+            <a class="skip-to-content" href="#main">Skip to main content</a>
+            <button class="main-menu-dropdown-button" popovertarget="nav-menu">Menu</button>
+            <ul id="nav-menu" class="main-menu-items" aria-label="Site Navigation" popover>
+                <li><a href="https://hamzamateen.github.io/thinkretions/blog/">blog</a></li>
+                <li><a href="https://hamzamateen.github.io/thinkretions/tags/">tags</a></li>
+                <li><a href="https://hamzamateen.github.io/thinkretions/projects/">projects</a></li>
+                <li><a href="https://github.com/hamzamateen" target="_blank">github</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main id="main">
+        <article class="post content">
+            <header>
+                <h1 class="post-title">
+                    <a href="https://hamzamateen.github.io/thinkretions/blog/intro-to-concurrency-in-golang/">Introduction to concurrency in Golang</a>
+                </h1>
+                <ul class="post-meta">
+                    <li title="Published on 2025-10-26"><time datetime="2025-10-26">2025.10.26</time></li>
+                    <li role="separator" aria-hidden="true">::</li>
+                    <li title="Authors">Hamza Mateen</li>
+                    <li role="separator" aria-hidden="true">::</li>
+                    <li title="1526 words"><time datetime="PT8M">8 min</time> read</li>
+                </ul>
+                <div class="post-tags">
+                    <span>#<a rel="tag" href="https://hamzamateen.github.io/thinkretions/tags/showcase/">showcase</a></span>
+                    <span>#<a rel="tag" href="https://hamzamateen.github.io/thinkretions/tags/shortcodes/">shortcodes</a></span>
+                </div>
+            </header>
+
+<h3 id="introduction">Introduction<a class="post-anchor" href="#introduction" aria-label="Anchor link for: introduction"><span aria-hidden="true">#</span></a>
+</h3>
+<p><strong>Rob Pike</strong>, one of the creators of the Go programming language, is often attributed with the following quote:</p>
+<blockquote>
+<p>Concurrency is about dealing with lots of things at once. Parallelism is about doing lots of things at once.</p>
+</blockquote>
+<p>Simplest real life example to this could arguably be multi-tasking. When we multi-task, we are basically switching from one <strong>task</strong> to another in, hopefully, an efficient manner. That's how we get <em>multiple</em> tasks done in lesser time. That's concurrency for you!</p>
+<p>Now imagine you have got a few friends to help <strong>you</strong> through those tasks. Each of you assign yourself to a specific task and then begin the grind. Some time later, every <strong>friend</strong> including <em>you</em> finishes their respective task. This is an example of parallelism.</p>
+<p>There exist programming analogues of the few terms that I have emphasized above, these are:</p>
+<p><strong>Task</strong>: Any job that is supposed to be performed by a computer program.
+<strong>You</strong> : Signifies the <em>main thread</em> of the program which is performing the said task.
+<strong>Friend</strong> : This is the <em>helper thread</em> that helps the main thread in getting the task done quickly.</p>
+<p>With that out of the way, we can now talk about how Go deals with concurrency.</p>
+<h1 id="go-concurrency-model">Go Concurrency Model<a class="post-anchor" href="#go-concurrency-model" aria-label="Anchor link for: go-concurrency-model"><span aria-hidden="true">#</span></a>
+</h1>
+<p>Go introduced a few <strong>constructs</strong> to make it easy for the developers to create concurrently executable programs, namely:</p>
+<ol>
+<li>Goroutines (co-routines in other languages)</li>
+<li>Channels</li>
+</ol>
+<h2 id="goroutines">Goroutines<a class="post-anchor" href="#goroutines" aria-label="Anchor link for: goroutines"><span aria-hidden="true">#</span></a>
+</h2>
+<p>Go uses functions to facilitate the use of goroutines.</p>
+<blockquote>
+<p>A <em>goroutine</em> is a function that runs concurrently to other functions.</p>
+</blockquote>
+<p>It is functionally synonymous to an operating system thread because it is an independent unit of execution but there exist several differences, which make goroutines a better choice in terms of concurrency.</p>
+<p>For instance, <em>goroutines</em>:</p>
+<ul>
+<li>are lightweight</li>
+<li>have minimal memory-footprint.</li>
+<li>are easy to create and manage (via channels).</li>
+<li>are scheduled in user-space by the Go scheduler instead of kernel-space by OS kernel.</li>
+<li>have low context-switching cost.</li>
+</ul>
+<p>In Go, if <em>function call</em> is preceded by the keyword <strong>go</strong>, it becomes a goroutine. In code, it looks like this:</p>
+<pre data-lang="Go" style="background-color:#2b303b;color:#c0c5ce;" class="language-Go "><code class="language-Go" data-lang="Go"><span style="color:#b48ead;">package </span><span style="color:#bf616a;">main
+</span><span>
+</span><span style="color:#b48ead;">func </span><span style="color:#8fa1b3;">square</span><span>(</span><span style="color:#bf616a;">num </span><span style="color:#b48ead;">int</span><span>) {
+</span><span>    </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">num </span><span>* </span><span style="color:#bf616a;">num
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">func </span><span style="color:#8fa1b3;">main</span><span>() {
+</span><span>    </span><span style="color:#b48ead;">go </span><span style="color:#bf616a;">square</span><span>(</span><span style="color:#d08770;">2</span><span>); 
+</span><span>}
+</span></code></pre>
+<p>In Go, every function <em>qualifies</em> to be a goroutine, which implies that a program's <em>main</em> function can also be a goroutine.</p>
+<p>In above code snippet, there are two goroutines; <em>main</em> and the <em>greetGuest</em>, former is made into a goroutine by <em>Go runtime</em> whereas <em>greetGuest</em> becomes a goroutine as its invocation follows the <strong>go</strong> keyword.
+In this way, the <em>greetGuest</em> function runs concurrently with the <em>main</em> function, and executes its instructions independently.</p>
+<p>The <em>main</em> function after creating the goroutine, immediately ends because there are no more instructions to run. It does not wait for the <em>greetGuest</em> goroutine to finish its job. We can change this behaviour, and make it wait but we will look into this later in the article.</p>
+<p>As you might have noticed, we didn't store the squared value returned by the square goroutine. This is because we cannot!  Goroutines are not ordinary functions; they are mini-programs that perform specialized tasks which they are created for.</p>
+<p>But - what if we absolutely need a goroutine to return a value before terminating? For example, let's say we want to compute the arithmetic sum of an array by decomposing it into subarrays and then process each one using a goroutine? Logically, those goroutines would've to send the computed values back to the <em>main</em> goroutine; this is where <strong>channels</strong> come into play. Channels are the <strong>construct</strong> introduced by Go to manage and synchronize goroutines effectively.</p>
+<h2 id="channels">Channels<a class="post-anchor" href="#channels" aria-label="Anchor link for: channels"><span aria-hidden="true">#</span></a>
+</h2>
+<blockquote>
+<p>Channels provide a medium for goroutines to communicate with each other.</p>
+</blockquote>
+<p>They can be used to synchronize the execution and state across goroutines. A channel can be created with its name followed by the keyword <strong>chan <type></strong> where <em>type</em> is any built-in data-type.
+Channels are shared-memory blocks under the hood. When a channel is created, it is basically a pointer to that memory block which we can share around with goroutines for mutual access.</p>
+<pre data-lang="Go" style="background-color:#2b303b;color:#c0c5ce;" class="language-Go "><code class="language-Go" data-lang="Go"><span style="color:#b48ead;">var </span><span style="color:#bf616a;">ch </span><span style="color:#b48ead;">chan int
+</span></code></pre>
+<p>Here, <code>ch</code> is a <code>nil</code> channel of type <code>int</code> which can neither store nor transmit any value because it is not initialized. We can pass it to the built-in <code>make</code> function, which allocates and initializes an object of various types including channel.</p>
+<pre data-lang="Go" style="background-color:#2b303b;color:#c0c5ce;" class="language-Go "><code class="language-Go" data-lang="Go"><span style="color:#bf616a;">ch </span><span>:= </span><span style="color:#96b5b4;">make</span><span>(</span><span style="color:#b48ead;">chan int</span><span>)
+</span></code></pre>
+<p>This is now a proper channel which can help share data among goroutines.</p>
+<h3 id="communication-types">Communication Types<a class="post-anchor" href="#communication-types" aria-label="Anchor link for: communication-types"><span aria-hidden="true">#</span></a>
+</h3>
+<p>Channels facilitate communication between goroutines but communication has several types, such as:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>1. Simplex communication
+</span><span>2. Half-duplex communication
+</span><span>3. Full-duplex communication
+</span></code></pre>
+<p><strong>Simplex</strong> communication is a unidirectional or a one-way communication scheme where only one side can send data. The receiving side cannot send any information back to the transmitting side. <strong>Publisher-Subscriber</strong> design pattern is based on simplex communication because data flows only from <em>publisher</em> to the <em>subscriber</em> and not the other way around.</p>
+<p><strong>Half-duplex</strong> communication occurs when both parties are capable of receiving and transmitting data but only one side can send data at a time. It is sort of a <strong>synchronous</strong> form of communication in the sense that it requires co-ordination from both sides because the data must be consumed by a side before the channel is ready to receive further data.</p>
+<p><strong>Full-duplex</strong> is a <strong>synchronous</strong>, two-way communication system where both sides can send and receive data simultaneously. Examples include chat messaging systems, and real-time video-conferencing.</p>
+<p>Go enables these communication mechanisms through <strong>Buffered</strong> and <strong>Unbuffered</strong> channels in addition to multi-channel communication.</p>
+<h3 id="buffered-vs-unbuffered-channels">Buffered vs. Unbuffered Channels<a class="post-anchor" href="#buffered-vs-unbuffered-channels" aria-label="Anchor link for: buffered-vs-unbuffered-channels"><span aria-hidden="true">#</span></a>
+</h3>
+<p>An <strong>unbuffered</strong> channel can be created using the <code>make</code> function without specifying a buffer size. The
+<code>make</code> function, by default, creates a channel of unit capacity, which means that it can hold only one value at a time. Both sides can send and receive data from such a channel but only when the channel is empty. If it's not then the value must first be consumed by either the sender or receiver goroutine. Unbuffered channels help us establish partially <strong>synchronous</strong> communication system between goroutines.</p>
+<p>To create a <strong>buffered</strong> channel to establish <strong>asynchronous</strong> communication between goroutines, a <em>buffer size</em> can be passed to the <code>make</code> function along with the channel type. For example:</p>
+<pre data-lang="Go" style="background-color:#2b303b;color:#c0c5ce;" class="language-Go "><code class="language-Go" data-lang="Go"><span style="color:#bf616a;">ch </span><span>:= </span><span style="color:#96b5b4;">make</span><span>(</span><span style="color:#b48ead;">chan int</span><span>, </span><span style="color:#d08770;">2</span><span>)
+</span></code></pre>
+<p>This creates a buffered channel with capacity of holding 2 integer values simulataneously, so the sender, after sending a value to the channel, doesn't have to wait for the receiver to read it, before sending another one.</p>
+<p>This communication mode is asynchronous, however, it's not a <strong>Full-duplex</strong> communication system. That could only be achieved if we opened two separate channels instead of increasing the channel capacity. Full-duplex communication requires both parties to be able to send and receive messages at the <strong>same</strong> time, which a single channel cannot allow because concurrent access without blocking can introduce data races.</p>
+<p>Let's work through an example to understand the usage and power of <strong>Channels</strong></p>
+<h2 id="a-nice-concurrency-problem">A Nice Concurrency Problem<a class="post-anchor" href="#a-nice-concurrency-problem" aria-label="Anchor link for: a-nice-concurrency-problem"><span aria-hidden="true">#</span></a>
+</h2>
+<blockquote>
+<p>Calculate the sum of subarrays concurrently!</p>
+</blockquote>
+<p>First, create a function that receives a channel and an array to sum.</p>
+<p>We initalize the <code>sum</code> variable, then use a <code>for</code> loop to compute the sum of array. Lastly, the computed value is written into the channel with special syntax that is <code>&lt;-</code> (an arrow) <strong>after</strong> the channel name.</p>
+<pre data-lang="Go" style="background-color:#2b303b;color:#c0c5ce;" class="language-Go "><code class="language-Go" data-lang="Go"><span style="color:#b48ead;">func </span><span style="color:#8fa1b3;">sumSubarray</span><span>(</span><span style="color:#bf616a;">ch </span><span style="color:#b48ead;">chan int</span><span>, </span><span style="color:#bf616a;">subarr </span><span>[]</span><span style="color:#b48ead;">int</span><span>) {
+</span><span>	</span><span style="color:#65737e;">// initialize the sum variable
+</span><span>	</span><span style="color:#bf616a;">sum </span><span>:= </span><span style="color:#d08770;">0
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// compute the sum
+</span><span>	</span><span style="color:#b48ead;">for </span><span style="color:#bf616a;">i </span><span>:= </span><span style="color:#d08770;">0</span><span>; </span><span style="color:#bf616a;">i </span><span>&lt; </span><span style="color:#96b5b4;">len</span><span>(</span><span style="color:#bf616a;">subarr</span><span>); </span><span style="color:#bf616a;">i</span><span>++ {
+</span><span>		</span><span style="color:#bf616a;">sum </span><span>+= </span><span style="color:#bf616a;">subarr</span><span>[</span><span style="color:#bf616a;">i</span><span>]
+</span><span>	}
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// write the sum into channel
+</span><span>	</span><span style="color:#bf616a;">ch </span><span>&lt;- </span><span style="color:#bf616a;">sum
+</span><span>}
+</span></code></pre>
+<p>Next, we initialize a channel and a supposedly large integer array, inside the main function. We also calculate the mid-point of array to split it in two equal parts in order to distribute it between a couple of goroutines.</p>
+<pre data-lang="Go" style="background-color:#2b303b;color:#c0c5ce;" class="language-Go "><code class="language-Go" data-lang="Go"><span style="color:#b48ead;">func </span><span style="color:#8fa1b3;">main</span><span>() {
+</span><span>	</span><span style="color:#65737e;">// communication channel
+</span><span>	</span><span style="color:#bf616a;">ch </span><span>:= </span><span style="color:#96b5b4;">make</span><span>(</span><span style="color:#b48ead;">chan int</span><span>)
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// supposedly large array of integers
+</span><span>	</span><span style="color:#bf616a;">arr </span><span>:= [</span><span style="color:#d08770;">19</span><span>]</span><span style="color:#b48ead;">int</span><span>{</span><span style="color:#d08770;">1</span><span>, </span><span style="color:#d08770;">2</span><span>, </span><span style="color:#d08770;">3</span><span>, </span><span style="color:#d08770;">4</span><span>, </span><span style="color:#d08770;">5</span><span>, </span><span style="color:#d08770;">6</span><span>, </span><span style="color:#d08770;">7</span><span>, </span><span style="color:#d08770;">8</span><span>, </span><span style="color:#d08770;">9</span><span>, </span><span style="color:#d08770;">10</span><span>, </span><span style="color:#d08770;">11</span><span>, </span><span style="color:#d08770;">12</span><span>, </span><span style="color:#d08770;">13</span><span>, </span><span style="color:#d08770;">14</span><span>, </span><span style="color:#d08770;">15</span><span>, </span><span style="color:#d08770;">16</span><span>, </span><span style="color:#d08770;">17</span><span>, </span><span style="color:#d08770;">18</span><span>, </span><span style="color:#d08770;">19</span><span>}
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// calculate the mid-point for splitting
+</span><span>	</span><span style="color:#bf616a;">mid </span><span>:= </span><span style="color:#bf616a;">int</span><span>(</span><span style="color:#96b5b4;">len</span><span>(</span><span style="color:#bf616a;">arr</span><span>) / </span><span style="color:#d08770;">2</span><span>)
+</span><span>}
+</span></code></pre>
+<p>Now, a <code>totalSum</code> variable is initialized to <code>0</code> to hold the combined sum from different goroutines. Then, a couple of goroutines are created to sum the array segments. We pass the channel <code>ch</code> created above, and the intended segments to each goroutine.</p>
+<p>When the first goroutine is created, the main function doesn't wait for the result and continues its execution. It then creates another goroutine to calculate the sum of 2nd half. Array splitting is done through <code>slicing</code> which follows the syntax: <code>arr[start:end]</code>, where the starting index is inclusive while the ending index is exclusive. When the 'end' is omitted, it means to slice through <em>till the end of array</em>.</p>
+<pre data-lang="Go" style="background-color:#2b303b;color:#c0c5ce;" class="language-Go "><code class="language-Go" data-lang="Go"><span style="color:#b48ead;">func </span><span style="color:#8fa1b3;">main</span><span>() {
+</span><span>    </span><span style="color:#65737e;">// ...
+</span><span>    </span><span style="color:#65737e;">// ...
+</span><span> 
+</span><span>	</span><span style="color:#bf616a;">totalSum </span><span>:= </span><span style="color:#d08770;">0
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// create goroutines to
+</span><span>	</span><span style="color:#b48ead;">go </span><span style="color:#bf616a;">sumSubarray</span><span>(</span><span style="color:#bf616a;">ch</span><span>, </span><span style="color:#bf616a;">arr</span><span>[</span><span style="color:#d08770;">0</span><span>:</span><span style="color:#bf616a;">mid</span><span>])
+</span><span>	</span><span style="color:#b48ead;">go </span><span style="color:#bf616a;">sumSubarray</span><span>(</span><span style="color:#bf616a;">ch</span><span>, </span><span style="color:#bf616a;">arr</span><span>[</span><span style="color:#bf616a;">mid</span><span>:])
+</span><span>}
+</span></code></pre>
+<p>Finally, we are ready to receive the partial sums from those goroutines.</p>
+<pre data-lang="Go" style="background-color:#2b303b;color:#c0c5ce;" class="language-Go "><code class="language-Go" data-lang="Go"><span style="color:#b48ead;">func </span><span style="color:#8fa1b3;">main</span><span>() {
+</span><span>    </span><span style="color:#65737e;">// ..
+</span><span>    </span><span style="color:#65737e;">// ..
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// collect the results
+</span><span>	</span><span style="color:#bf616a;">totalSum </span><span>+= &lt;-</span><span style="color:#bf616a;">ch
+</span><span>	</span><span style="color:#bf616a;">totalSum </span><span>+= &lt;-</span><span style="color:#bf616a;">ch
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// print the results
+</span><span>	</span><span style="color:#bf616a;">fmt</span><span>.</span><span style="color:#bf616a;">Println</span><span>(&quot;</span><span style="color:#a3be8c;">Total sum: </span><span>&quot;, </span><span style="color:#bf616a;">totalSum</span><span>)
+</span><span>}
+</span></code></pre>
+<p>To receive from a channel, an arrow <strong>before</strong> its name is placed. We receive a value from the channel, and add it to the <code>totalSum</code> variable. This is a <strong>blocking</strong> operation because we are reading from an empty channel. Execution of the main function would be blocked until one of the goroutines produces a result and sends it to the channel. When it happens, the main function immediately reads it, and adds it to the variable, making the channel empty again. The next instruction would also be a blocking one. We wait until the final goroutine returns a value into the channel which gets added to the total sum.</p>
+<p>Finally, the <code>totalSum</code> is printed to the console.</p>
+<p>Here's all the code for reference:</p>
+<pre data-lang="Go" style="background-color:#2b303b;color:#c0c5ce;" class="language-Go "><code class="language-Go" data-lang="Go"><span style="color:#b48ead;">package </span><span style="color:#bf616a;">main
+</span><span>
+</span><span style="color:#b48ead;">import </span><span>&quot;</span><span style="color:#a3be8c;">fmt</span><span>&quot;
+</span><span>
+</span><span style="color:#b48ead;">func </span><span style="color:#8fa1b3;">sumSubarray</span><span>(</span><span style="color:#bf616a;">ch </span><span style="color:#b48ead;">chan int</span><span>, </span><span style="color:#bf616a;">subarr </span><span>[]</span><span style="color:#b48ead;">int</span><span>) {
+</span><span>	</span><span style="color:#65737e;">// initialize the sum variable
+</span><span>	</span><span style="color:#bf616a;">sum </span><span>:= </span><span style="color:#d08770;">0
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// compute the sum
+</span><span>	</span><span style="color:#b48ead;">for </span><span style="color:#bf616a;">i </span><span>:= </span><span style="color:#d08770;">0</span><span>; </span><span style="color:#bf616a;">i </span><span>&lt; </span><span style="color:#96b5b4;">len</span><span>(</span><span style="color:#bf616a;">subarr</span><span>); </span><span style="color:#bf616a;">i</span><span>++ {
+</span><span>		</span><span style="color:#bf616a;">sum </span><span>+= </span><span style="color:#bf616a;">subarr</span><span>[</span><span style="color:#bf616a;">i</span><span>]
+</span><span>	}
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// write the sum into channel
+</span><span>	</span><span style="color:#bf616a;">ch </span><span>&lt;- </span><span style="color:#bf616a;">sum
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">func </span><span style="color:#8fa1b3;">main</span><span>() {
+</span><span>	</span><span style="color:#65737e;">// communication channel
+</span><span>	</span><span style="color:#bf616a;">ch </span><span>:= </span><span style="color:#96b5b4;">make</span><span>(</span><span style="color:#b48ead;">chan int</span><span>)
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// supposedly large array of integers
+</span><span>	</span><span style="color:#bf616a;">arr </span><span>:= [</span><span style="color:#d08770;">19</span><span>]</span><span style="color:#b48ead;">int</span><span>{</span><span style="color:#d08770;">1</span><span>, </span><span style="color:#d08770;">2</span><span>, </span><span style="color:#d08770;">3</span><span>, </span><span style="color:#d08770;">4</span><span>, </span><span style="color:#d08770;">5</span><span>, </span><span style="color:#d08770;">6</span><span>, </span><span style="color:#d08770;">7</span><span>, </span><span style="color:#d08770;">8</span><span>, </span><span style="color:#d08770;">9</span><span>, </span><span style="color:#d08770;">10</span><span>, </span><span style="color:#d08770;">11</span><span>, </span><span style="color:#d08770;">12</span><span>, </span><span style="color:#d08770;">13</span><span>, </span><span style="color:#d08770;">14</span><span>, </span><span style="color:#d08770;">15</span><span>, </span><span style="color:#d08770;">16</span><span>, </span><span style="color:#d08770;">17</span><span>, </span><span style="color:#d08770;">18</span><span>, </span><span style="color:#d08770;">19</span><span>}
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// calculate the mid-point for splitting
+</span><span>	</span><span style="color:#bf616a;">mid </span><span>:= </span><span style="color:#bf616a;">int</span><span>(</span><span style="color:#96b5b4;">len</span><span>(</span><span style="color:#bf616a;">arr</span><span>) / </span><span style="color:#d08770;">2</span><span>)
+</span><span>
+</span><span>	</span><span style="color:#bf616a;">totalSum </span><span>:= </span><span style="color:#d08770;">0
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// create goroutines to
+</span><span>	</span><span style="color:#b48ead;">go </span><span style="color:#bf616a;">sumSubarray</span><span>(</span><span style="color:#bf616a;">ch</span><span>, </span><span style="color:#bf616a;">arr</span><span>[</span><span style="color:#d08770;">0</span><span>:</span><span style="color:#bf616a;">mid</span><span>])
+</span><span>	</span><span style="color:#b48ead;">go </span><span style="color:#bf616a;">sumSubarray</span><span>(</span><span style="color:#bf616a;">ch</span><span>, </span><span style="color:#bf616a;">arr</span><span>[</span><span style="color:#bf616a;">mid</span><span>:])
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// collect the results
+</span><span>	</span><span style="color:#bf616a;">totalSum </span><span>+= &lt;-</span><span style="color:#bf616a;">ch
+</span><span>	</span><span style="color:#bf616a;">totalSum </span><span>+= &lt;-</span><span style="color:#bf616a;">ch
+</span><span>
+</span><span>	</span><span style="color:#65737e;">// print the results
+</span><span>	</span><span style="color:#bf616a;">fmt</span><span>.</span><span style="color:#bf616a;">Println</span><span>(&quot;</span><span style="color:#a3be8c;">Total sum: </span><span>&quot;, </span><span style="color:#bf616a;">totalSum</span><span>)
+</span><span>}
+</span></code></pre>
+<h2 id="takeaways">Takeaways<a class="post-anchor" href="#takeaways" aria-label="Anchor link for: takeaways"><span aria-hidden="true">#</span></a>
+</h2>
+<p>Concurrency in Go makes handling multiple tasks simple, with <em>goroutines</em> and <em>channels</em>. Goroutines let you run functions concurrently in a memory-efficient way, while channels help with friction-less, controlled communication between these goroutines.</p>
+<p>Moreover, slicing and channel synchronization, solves problems involving multiple tasks—like splitting and summing arrays. The Go runtime manages much of this behind the scenes.</p>
+<blockquote>
+<p>I hope you picked up a thing or two from this one, happy learning!!</p>
+</blockquote>
+
+        </article>
+        <nav class="post-navigation">
+            <header class="post-navigation-title">
+                <h2>Read More Posts</h2>
+                <hr>
+            </header>
+            <div class="post-navigation-buttons">
+                <a rel="prev" href="https://hamzamateen.github.io/thinkretions/blog/markdown/" aria-label="Prev article">
+                    <span aria-hidden="true">[</span>Markdown Syntax Guide<span aria-hidden="true">]&nbsp;&gt;</span>
+                </a>
+            </div>
+        </nav>
+    </main>
+    <footer class="footer">
+        <address class="socials">
+            <ul>
+                <li>
+                    <a class="social-link" rel="me" href="mailto:me@thinkretions.com" title="email">
+                        <svg role="img" aria-label="email">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/email.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a class="social-link" rel="me" href="https://github.com/HamzaMateen" title="github">
+                        <svg role="img" aria-label="github">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/github.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a class="social-link" rel="me" href="https://www.linkedin.com/in/hamzamateen765" title="linkedin">
+                        <svg role="img" aria-label="linkedin">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/linkedin.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </address>
+        <p class="copyright">
+            <span>© <time>2025</time></span>
+            <span>Powered by <a href="https://www.getzola.org">Zola</a></span>
+            <span>Theme by <a href="https://eyalkalderon.com">ebkalderon</a></span>
+        </p>
+    </footer>
+</body>
+
+</html>

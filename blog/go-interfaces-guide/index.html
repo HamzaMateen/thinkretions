@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Go Interfaces: A Beginner&#x27;s Guide | thinkretions</title>
+
+    <link rel="preload" href="https://hamzamateen.github.io/thinkretions/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://hamzamateen.github.io/thinkretions/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://hamzamateen.github.io/thinkretions/css/style.css?h=fd30ebca55fd38ab02dd">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💭</text></svg>">
+    <script src="https://hamzamateen.github.io/thinkretions/js/auto-close-popover-on-resize.js?h=4ef87d6fc7b98b22e044" defer></script>
+    <script src="https://hamzamateen.github.io/thinkretions/js/copy-code-to-clipboard.js?h=6aac77c47d552a0ac847" defer></script>
+    <script src="https://hamzamateen.github.io/thinkretions/js/theme-switcher.js?h=f511cf3b81ddb6475538" defer></script>
+
+    <link rel="canonical" href="https://hamzamateen.github.io/thinkretions/blog/go-interfaces-guide/">
+    
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#211f1a">
+    <meta name="color-scheme" content="dark">
+
+    <meta property="og:title" content="Go Interfaces: A Beginner's Guide">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://hamzamateen.github.io/thinkretions/blog/go-interfaces-guide/">
+    <meta property="og:description" content="materializing the immaterial...">
+    <meta property="og:site_name" content="thinkretions">
+    <meta property="og:updated_time" content="2025-10-26T18:12:04.662587587+00:00">
+    <meta property="article:published_time" content="2025-02-22T00:00:00+00:00">
+</head>
+
+<body class="layout-center">
+    <header class="header">
+        <div class="header-container">
+            <span class="header-logo-container">
+                <a href="https://hamzamateen.github.io/thinkretions">
+                    <span class="logo">thinkretions</span>
+                </a>
+            </span>
+        </div>
+        <nav class="main-menu" aria-label="Main Menu">
+            <a class="skip-to-content" href="#main">Skip to main content</a>
+            <button class="main-menu-dropdown-button" popovertarget="nav-menu">Menu</button>
+            <ul id="nav-menu" class="main-menu-items" aria-label="Site Navigation" popover>
+                <li><a href="https://hamzamateen.github.io/thinkretions/blog/">blog</a></li>
+                <li><a href="https://hamzamateen.github.io/thinkretions/tags/">tags</a></li>
+                <li><a href="https://hamzamateen.github.io/thinkretions/projects/">projects</a></li>
+                <li><a href="https://github.com/hamzamateen" target="_blank">github</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main id="main">
+        <article class="post content">
+            <header>
+                <h1 class="post-title">
+                    <a href="https://hamzamateen.github.io/thinkretions/blog/go-interfaces-guide/">Go Interfaces: A Beginner&#x27;s Guide</a>
+                </h1>
+                <ul class="post-meta">
+                    <li title="Published on 2025-02-22"><time datetime="2025-02-22">2025.02.22</time></li>
+                    <li role="separator" aria-hidden="true">::</li>
+                    <li title="1140 words"><time datetime="PT6M">6 min</time> read</li>
+                </ul>
+            </header>
+
+<h3 id="introduction">Introduction<a class="post-anchor" href="#introduction" aria-label="Anchor link for: introduction"><span aria-hidden="true">#</span></a>
+</h3>
+<p>An interface at its best, is an <strong>interaction point</strong> where two different <em>systems</em> meet in order to interact with each other.<br />
+Interfaces in Go are none different, they can be understood as interaction points for two or more apparently unrelated types.</p>
+<p>The <strong>interface</strong> in Go language is a built-in construct to introduce custom types. Interfaces are <em>abstract</em> which means that we are not allowed to instantiate them. For some type to be compatible with an interface, it has to implement the methods specified in the interface. This process is referred to as <strong>satisfying</strong> of the interface.</p>
+<p>In short, the primary purpose of their existence is a behavioral one; they enable us to treat different types as the same as long as these types share some common behavior.</p>
+<p>In Go, an interface can be declared as follows:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>type Duck interface {
+</span><span>    // declare methods here ... 
+</span><span>}
+</span></code></pre>
+<p>The name can be anything apart from <em>Duck</em> but there's a reason I chose that name, let's dig deeper.</p>
+<h3 id="the-duck-typing-test">The Duck Typing Test<a class="post-anchor" href="#the-duck-typing-test" aria-label="Anchor link for: the-duck-typing-test"><span aria-hidden="true">#</span></a>
+</h3>
+<p>Go is a <em>strongly typed</em> language. This means we cannot have a type <em>opt in</em> to hold different type of data once it has been declared. That gives huge benefits in terms of code predictability, static analysis and, just-in-time debugging, but it comes with a cost - <em>we no longer have type flexibility</em>.</p>
+<p>Strong nature of a language prevents the programmer from inventing unanticipated types. There's a set of types built into the language that are to be utilized and hence, there's no middle ground between types. It is either one way or the another.<br />
+Either you got a string or you have an int; nothing in between... or is it?</p>
+<p>Introducing <em>Duck Typing</em>... test, it goes like this:</p>
+<blockquote>
+<p>If it walks like a duck and it quacks like a duck, then it must be a duck - <a href="https://en.wikipedia.org/wiki/Duck_typing">Wikipedia</a></p>
+</blockquote>
+<p>The crux of <em>Duck Typing</em> principle is the idea that code <em>does not</em> care whether an object is a duck but rather it concerns with the fact that it <em>quacks</em> or not.</p>
+<p>Let's make sense out of it with some code. We define the glorious Duck interface as before:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>type Duck interface {
+</span><span>    // our methods go here
+</span><span>}
+</span></code></pre>
+<p>We declare a type interface named <em>Duck</em>. The Duck interface characterizes a <em>contract</em> for any subsequent types that satisfy it. But as of now, it is quite vague since there are no rules defined here. This is where <em>methods</em> come in handy. Methods describe the kind of behavior a type would need to exhibit in order to satisfy the interface.</p>
+<p>We know that a duck should be able to <em>walk</em> and <em>quack</em>. Let's add these two methods to our interface;</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>type Duck interface {
+</span><span>    Walk()
+</span><span>    Quack()
+</span><span> }
+</span></code></pre>
+<p>We have added the required rules of the contract. It is now job of the type in question to implement these methods to be given the perk of being categorised as a duck.</p>
+<p>An important distinction to note here is that this mechanism in Go is called <strong>Structural Typing</strong> as it has a static type system.<br />
+<strong>Duck Typing</strong> is more suited for languages which are dynamic in nature such as <em>Python</em> and/or <em>Elixir</em>, etc. But nonetheless, goal of both design patterns is the same.</p>
+<h3 id="implementing-the-interface">Implementing the Interface<a class="post-anchor" href="#implementing-the-interface" aria-label="Anchor link for: implementing-the-interface"><span aria-hidden="true">#</span></a>
+</h3>
+<p>There are countless types of ducks out there with varied attributes, such as color, size or flying capabilities. Let's take for example, the Mandarin and Grebes.</p>
+<p>Grebes are primarily found in lakes. They are known for their diving abilities. Mandarin ducks prefer wooded areas near ponds. They often like to remain static. That's quite an array of differences, right?</p>
+<p>let's create the <code>structs</code> named after these types of ducks;<br />
+For Grebe:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>type Grebe struct {
+</span><span>    isGoodDiver bool
+</span><span>}
+</span></code></pre>
+<p>similarly, for Mandarin:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>type MandarinDuck struct {
+</span><span>    size int
+</span><span>    habitat string
+</span><span>}
+</span></code></pre>
+<p>These are <em>different</em> types by definition, we cannot assign their instances to one another.</p>
+<p>What if we have a function that expects just <em>any</em> type of duck regardless of their differences? <em>Mandarin</em> and <em>Grebe</em> are both reasonable candidates. After all, they are ducks. They can <em>walk</em> and <em>quack</em>.<br />
+Essentially what we need here is some sort of <em>polymorphic behavior</em>.</p>
+<h3 id="interfaces-for-polymorphism">Interfaces for Polymorphism<a class="post-anchor" href="#interfaces-for-polymorphism" aria-label="Anchor link for: interfaces-for-polymorphism"><span aria-hidden="true">#</span></a>
+</h3>
+<p><em>The ability of an object to behave in multiple ways is called Polymorphism</em>. It is evident from our discussion that we need both duck types to exhibit the behavior of a general duck. Let us suppose there is a function that expects an object which satisfies the Duck interface:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>func DuckAcceptor(duck Duck) {
+</span><span>   duck.Walk()
+</span><span>   duck.Quack()
+</span><span>}
+</span></code></pre>
+<p>As of now, we cannot pass in the instances of <em>Grebe</em> or <em>MandarinDuck</em>. This can only be achieved once we implement the <em>Duck</em> interface on both duck types.</p>
+<p>The basic syntax to implement the methods of an interface in Go is pretty similar to defining normal functions. We just provide an object of the type which we intend to implement the interface on.<br />
+For <em>MandarinDuck</em>:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>func (md MandarinDuck) Walk() {
+</span><span>    fmt.Println(&quot;This is MandarinDuck walking... I walk simple!!!&quot;)
+</span><span>}
+</span><span>
+</span><span>func (md MandarinDuck) Quack() {
+</span><span>    fmt.Println(&quot;quack quack!!&quot;)
+</span><span>}
+</span></code></pre>
+<p>similarly, for Grebe type:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>func (g Grebe) Walk() {
+</span><span>    fmt.Println(&quot;This is Grebe duck walking!&quot;)
+</span><span>}
+</span><span>
+</span><span>func (g Grebe) Quack() {
+</span><span>    fmt.Println(&quot;quuaackkkkk quuaaackkkk!!&quot;)
+</span><span>}
+</span></code></pre>
+<p>Now, we can pass an object of any of these types to our <code>DuckAcceptor(d Duck)</code> function. <code>d</code> is now a generic duck type. The is the power polymorhism. A single type automatically binding to an appropriate <em>sub type</em> without programmer's intervention. And we achieved this through interfaces.</p>
+<p>let's see how this affects our program. We instantiate both structs,</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>var grebe Grebe
+</span><span>var mandarinDuck MandarinDuck 
+</span></code></pre>
+<p>Now if we call our <code>DuckAcceptor(d Duck)</code> function twice passing an object of each type respectively, we see that the <code>Walk()</code> and <code>Quack()</code> functions respond to the internal type change.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>DuckAcceptor(grebe)
+</span><span>fmt.Println()
+</span><span>DuckAcceptor(mandinDuck)
+</span></code></pre>
+<p>We can already envision the output, that is:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>This is Grebe duck walking!
+</span><span>quuaackkkkk quuaaackkkk!!
+</span><span>
+</span><span>This is MandarinDuck walking... I walk simple!!!
+</span><span>quack quack!!
+</span></code></pre>
+<p>Obvious... right?</p>
+<p>Summarizing it, interfaces are a powerful tool that enable us to achieve polymorphism in our code. They help us group related functionality together and make our code reusable.</p>
+<h3 id="the-empty-interface">The Empty Interface<a class="post-anchor" href="#the-empty-interface" aria-label="Anchor link for: the-empty-interface"><span aria-hidden="true">#</span></a>
+</h3>
+<p>There's only piece to the puzzle that remains to be solved and that is the <strong>Empty Interface</strong>.</p>
+<p>Go is primarily a statically typed language which means that every type needs to be known at <em>compile time</em> before the code is executed. This prevents type flexibility. Luckily, Go allows the programmer to make assumptions about types and this can be achieved through the empty interface, so what's an empty interface?</p>
+<p><em>An interface which has zero contract protocols(methods) is called empty interface</em></p>
+<p>let's quickly define one:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>type EmptyInterface interface{}
+</span></code></pre>
+<p>What good does it do? glad you asked! every type in go automatically implements the empty interface because it does not put any rules(methods) in place to be <em>satisfied</em> with. So we can basically start to qualify even our simple data types such as, int or string as <code>interface{}</code>. let's see an example from the official docs:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>var any interface{}
+</span><span>
+</span><span>any = 42
+</span><span>describe(any)
+</span><span>
+</span><span>any = &quot;hello&quot;
+</span><span>describe(any)
+</span></code></pre>
+<p>The output is:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>(42, int)
+</span><span>(hello, string)
+</span></code></pre>
+<p>As we can see, <code>any</code> variable can take on <em>any</em>(no pun intended) type of data. The <code>describe()</code> is a custom function that describes type of information of the passed in arguments.</p>
+<p>Empty interfaces are of great use when creating Go packages and libraries. There are some pitfalls or caveats to this approach such as the need of constant <em>Type Assertions</em> but that's a story for some another time.</p>
+<p><em>I hope you had a very good time here and picked up a thing or two. Happy Go-ing!!!</em></p>
+
+        </article>
+        <nav class="post-navigation">
+            <header class="post-navigation-title">
+                <h2>Read More Posts</h2>
+                <hr>
+            </header>
+            <div class="post-navigation-buttons">
+                <a rel="next" href="https://hamzamateen.github.io/thinkretions/blog/canary-vs-rolling-deployments/" aria-label="Next article">
+                    <span aria-hidden="true">&lt;&nbsp;[</span>Canary and Rolling Deployment Strategies Explained<span aria-hidden="true">]</span>
+                </a>
+                <span aria-hidden="true" role="separator">::</span>
+                <a rel="prev" href="https://hamzamateen.github.io/thinkretions/blog/linked-list-in-golang/" aria-label="Prev article">
+                    <span aria-hidden="true">[</span>Linked List in Golang<span aria-hidden="true">]&nbsp;&gt;</span>
+                </a>
+            </div>
+        </nav>
+    </main>
+    <footer class="footer">
+        <address class="socials">
+            <ul>
+                <li>
+                    <a class="social-link" rel="me" href="mailto:me@thinkretions.com" title="email">
+                        <svg role="img" aria-label="email">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/email.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a class="social-link" rel="me" href="https://github.com/HamzaMateen" title="github">
+                        <svg role="img" aria-label="github">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/github.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a class="social-link" rel="me" href="https://www.linkedin.com/in/hamzamateen765" title="linkedin">
+                        <svg role="img" aria-label="linkedin">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/linkedin.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </address>
+        <p class="copyright">
+            <span>© <time>2025</time></span>
+            <span>Powered by <a href="https://www.getzola.org">Zola</a></span>
+            <span>Theme by <a href="https://eyalkalderon.com">ebkalderon</a></span>
+        </p>
+    </footer>
+</body>
+
+</html>

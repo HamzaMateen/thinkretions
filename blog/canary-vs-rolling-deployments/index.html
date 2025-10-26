@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Canary and Rolling Deployment Strategies Explained | thinkretions</title>
+
+    <link rel="preload" href="https://hamzamateen.github.io/thinkretions/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://hamzamateen.github.io/thinkretions/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://hamzamateen.github.io/thinkretions/css/style.css?h=fd30ebca55fd38ab02dd">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💭</text></svg>">
+    <script src="https://hamzamateen.github.io/thinkretions/js/auto-close-popover-on-resize.js?h=4ef87d6fc7b98b22e044" defer></script>
+    <script src="https://hamzamateen.github.io/thinkretions/js/copy-code-to-clipboard.js?h=6aac77c47d552a0ac847" defer></script>
+    <script src="https://hamzamateen.github.io/thinkretions/js/theme-switcher.js?h=f511cf3b81ddb6475538" defer></script>
+
+    <link rel="canonical" href="https://hamzamateen.github.io/thinkretions/blog/canary-vs-rolling-deployments/">
+    
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#211f1a">
+    <meta name="color-scheme" content="dark">
+
+    <meta property="og:title" content="Canary and Rolling Deployment Strategies Explained">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://hamzamateen.github.io/thinkretions/blog/canary-vs-rolling-deployments/">
+    <meta property="og:description" content="materializing the immaterial...">
+    <meta property="og:site_name" content="thinkretions">
+    <meta property="og:updated_time" content="2025-10-26T18:12:04.661831654+00:00">
+    <meta property="article:published_time" content="2025-02-22T00:00:00+00:00">
+</head>
+
+<body class="layout-center">
+    <header class="header">
+        <div class="header-container">
+            <span class="header-logo-container">
+                <a href="https://hamzamateen.github.io/thinkretions">
+                    <span class="logo">thinkretions</span>
+                </a>
+            </span>
+        </div>
+        <nav class="main-menu" aria-label="Main Menu">
+            <a class="skip-to-content" href="#main">Skip to main content</a>
+            <button class="main-menu-dropdown-button" popovertarget="nav-menu">Menu</button>
+            <ul id="nav-menu" class="main-menu-items" aria-label="Site Navigation" popover>
+                <li><a href="https://hamzamateen.github.io/thinkretions/blog/">blog</a></li>
+                <li><a href="https://hamzamateen.github.io/thinkretions/tags/">tags</a></li>
+                <li><a href="https://hamzamateen.github.io/thinkretions/projects/">projects</a></li>
+                <li><a href="https://github.com/hamzamateen" target="_blank">github</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main id="main">
+        <article class="post content">
+            <header>
+                <h1 class="post-title">
+                    <a href="https://hamzamateen.github.io/thinkretions/blog/canary-vs-rolling-deployments/">Canary and Rolling Deployment Strategies Explained</a>
+                </h1>
+                <ul class="post-meta">
+                    <li title="Published on 2025-02-22"><time datetime="2025-02-22">2025.02.22</time></li>
+                    <li role="separator" aria-hidden="true">::</li>
+                    <li title="1222 words"><time datetime="PT7M">7 min</time> read</li>
+                </ul>
+            </header>
+
+<h2 id="what-is-a-deployment-strategy">What is a Deployment Strategy?<a class="post-anchor" href="#what-is-a-deployment-strategy" aria-label="Anchor link for: what-is-a-deployment-strategy"><span aria-hidden="true">#</span></a>
+</h2>
+<p><em>Nothing beats the sensation of pushing your code to production.</em><br />
+The feeling you get upon seeing your code going live, to be tried out by real users, is just mesmerizing. But, this feeling can be short-lived or may even remain unexperienced if the <strong>deployment strategy</strong> employed isn't the most suitable one for the project in question or a given scenario.</p>
+<p>According to OpenShift:</p>
+<blockquote>
+<p>A deployment strategy is a way to change or upgrade an application with the aim of no perceptible downtime.</p>
+</blockquote>
+<p>There are numerous deployment strategies employed in Software Development and DevOps but two of them very important and widely used are;</p>
+<ol>
+<li>Rolling Deployment</li>
+<li>Canary Deployment</li>
+</ol>
+<h2 id="rolling-deployment">Rolling Deployment<a class="post-anchor" href="#rolling-deployment" aria-label="Anchor link for: rolling-deployment"><span aria-hidden="true">#</span></a>
+</h2>
+<p>In rolling deployment, the upgraded version of system or app is brought online in <strong>incremental</strong> changes.<br />
+Different parts of the system are introduced to the production environment over time. It is a staged rollout approach where different components of the system are upgraded one at a time during each iteration of the deployment.</p>
+<h2 id="let-s-imagine">Let's Imagine<a class="post-anchor" href="#let-s-imagine" aria-label="Anchor link for: let-s-imagine"><span aria-hidden="true">#</span></a>
+</h2>
+<p>We have 3 servers running our system or application currently deployed with version <strong>v1.0</strong>.<br />
+In a rolling deployment, we might take down the first server, load it with the upgraded version <strong>v2.0</strong> of the application, and bring it back online.<br />
+When we have made sure that everything works fine and as expected, we move on to deploy our latest version on the next server in our server line up; we take down the legacy server, load it up with latest upgrade and pull it back online. This process is repeated until every server is operating on the latest upgrade.<br />
+In this way, the latest application is gradually deployed to the production environment.</p>
+<p>The following illustration shows rollout phases that take place in this rolling deployment example.</p>
+<p><img src="https://iq.opengenus.org/content/images/2023/09/rolling.png" alt="rolling" /></p>
+<h2 id="advantages">Advantages<a class="post-anchor" href="#advantages" aria-label="Anchor link for: advantages"><span aria-hidden="true">#</span></a>
+</h2>
+<p>Rolling deployment has some key benefits, such as:</p>
+<h3 id="downtime-prevention">Downtime Prevention<a class="post-anchor" href="#downtime-prevention" aria-label="Anchor link for: downtime-prevention"><span aria-hidden="true">#</span></a>
+</h3>
+<p>This strategy prevents downtime because even if one server is taken down in order for an upgrade, other servers are still operational and receive traffic accordingly. The load balancer of the app can be configured to distribute the traffic efficiently among the servers online. In this way, the users don't experience any service unavailability and upgrade process goes by smoothly.</p>
+<h3 id="early-mitigation">Early Mitigation<a class="post-anchor" href="#early-mitigation" aria-label="Anchor link for: early-mitigation"><span aria-hidden="true">#</span></a>
+</h3>
+<p>During rolling deployment, if our upgraded system shows any undefined behaviour or if any issues are spotted, they can be mitigated early on. Since the rate of <em>upgrade propagation</em> is slow, the deployment can be put a halt to or hotfixes can be issued to remedy the discrepancies on the go.<br />
+The gist is that we are only exposing a small part of our system to the new version at any given time.</p>
+<h2 id="disadvantages">Disadvantages<a class="post-anchor" href="#disadvantages" aria-label="Anchor link for: disadvantages"><span aria-hidden="true">#</span></a>
+</h2>
+<p>Everything comes at a cost and Rolling Deployment is no different;</p>
+<h3 id="slow-deployment">Slow Deployment<a class="post-anchor" href="#slow-deployment" aria-label="Anchor link for: slow-deployment"><span aria-hidden="true">#</span></a>
+</h3>
+<p>One major pain point of this strategy is that application upgrade happens at a very slow rate. This can be an issue in case if currently deployed version is facing downtime or contains any bugs.</p>
+<h3 id="problem-propagation">Problem Propagation<a class="post-anchor" href="#problem-propagation" aria-label="Anchor link for: problem-propagation"><span aria-hidden="true">#</span></a>
+</h3>
+<p>If some problems slip through the initial checks and remain un-addressed, those can make it through the whole system bringing the entire application down or at the risk of failure.</p>
+<h3 id="no-targeted-rollouts-support">No Targeted Rollouts Support<a class="post-anchor" href="#no-targeted-rollouts-support" aria-label="Anchor link for: no-targeted-rollouts-support"><span aria-hidden="true">#</span></a>
+</h3>
+<p>Rolling deployment doesn't support <em>targeted rollouts</em> because the user base is not controlled whether to be redirected to the newer version or current one. The load balancer randomly selects a server based on the current server load, following a random allocation method.</p>
+<p><strong>Rolling deployment strategy balances the deployment impact of upgraded versions to production environment and mitigates the risk of potential downtime during an upgrade. So it is a common choice in Software Devlopment and DevOps to choose this strategy for app deployment.</strong></p>
+<h2 id="canary-deployment">Canary Deployment<a class="post-anchor" href="#canary-deployment" aria-label="Anchor link for: canary-deployment"><span aria-hidden="true">#</span></a>
+</h2>
+<p>In Canary Deployment, a subset of already running servers are deployed with the newer version of the system and a smaller set of users are systematically redirected to these servers. This set of servers is called a <strong>Canary</strong>.</p>
+<p>This strategy is actually a derivative of an age-old practice by coal miners. They used to take <em>Canary birds</em> into coal mines in order to find out if the toxic gases within the mine are reaching dangerous levels. In case they did, the bird would get distressed and signal the miners to evacuate.</p>
+<h2 id="the-strategy">The Strategy<a class="post-anchor" href="#the-strategy" aria-label="Anchor link for: the-strategy"><span aria-hidden="true">#</span></a>
+</h2>
+<p>During canary deployment, the small set of servers are chosen based on some predefined criteria.</p>
+<p>The canaries can be selected based on <em>geographical location</em>, <em>device type</em> or just a specific group of <em>users</em>. It really depends on the need of hour, but once chosen, the canaries are used to monitor the performance of the new version under real-world conditions but on a much smaller and safer scale.</p>
+<p>If the system performs well and as expected, then staged rollout of the newer version is performed to the remaining servers, gradually upgrading the whole system. But if there occur any problems, the deployment can be halted, thereby, affecting a much smaller userbase. The problems can be fixed later right inside the canary, then tested out and deployed again.</p>
+<p>let's solidify our understanding through a practical use case scenario.</p>
+<h2 id="let-s-imagine-again">Let's Imagine... Again<a class="post-anchor" href="#let-s-imagine-again" aria-label="Anchor link for: let-s-imagine-again"><span aria-hidden="true">#</span></a>
+</h2>
+<p>We have 6 severs running version <strong>v1.0</strong>.of our system and we want to use <em>Canary Deployment</em> to upgrade our system. In this case, we need to define a <em>criteria</em> to select the canary servers. Let's say we opt to use <em>33%</em> of our servers to run the newer version. To do so, we take down 2 of 6 servers, transform them into a separate <em>cluster</em>, and load them up with the version <strong>v2.0</strong> of our app and redeploy them to the production line up.<br />
+Now we have 2 separate deployments of the same system. We can direct a certain amount of traffic, ideally 33% in this case, and monitor the performance of the version <strong>v2.0</strong>.</p>
+<p>The figure below, emulates the actual implementation of this scenario.</p>
+<p><img src="https://iq.opengenus.org/content/images/2023/09/canary.png" alt="canary" /></p>
+<h2 id="advantages-1">Advantages<a class="post-anchor" href="#advantages-1" aria-label="Anchor link for: advantages-1"><span aria-hidden="true">#</span></a>
+</h2>
+<p>Canary deployment comes with its own perks, for example;</p>
+<h3 id="resilience">Resilience<a class="post-anchor" href="#resilience" aria-label="Anchor link for: resilience"><span aria-hidden="true">#</span></a>
+</h3>
+<p>Even if something goes wrong, we already have 67% of our servers operating on the stable version of our app so we can redirect the impacted users there. A slightly large load will develop on the existing server, but user frustration can be evaded in this way. Which means that our deployment strategy is resilient in case of any faults.</p>
+<h3 id="targeted-rollouts">Targeted Rollouts!<a class="post-anchor" href="#targeted-rollouts" aria-label="Anchor link for: targeted-rollouts"><span aria-hidden="true">#</span></a>
+</h3>
+<p>Perhaps the most important part of Canary deployment is that it enables us to perform <em>targeted rollouts</em>. We can customize our user selection criteria to our liking such as testing our system's performance on specific device type or user's geographical location.</p>
+<h2 id="disadvantages-1">Disadvantages<a class="post-anchor" href="#disadvantages-1" aria-label="Anchor link for: disadvantages-1"><span aria-hidden="true">#</span></a>
+</h2>
+<p>This strategy also comes with some challenges, such as:</p>
+<h3 id="careful-monitoring-testing">Careful Monitoring &amp; Testing<a class="post-anchor" href="#careful-monitoring-testing" aria-label="Anchor link for: careful-monitoring-testing"><span aria-hidden="true">#</span></a>
+</h3>
+<p>Canary deployment requires careful <em>monitoring</em> in order to observe the system's performance. Automated <em>testing</em> is required to perform system's performance evaluation</p>
+<h3 id="scaled-automation">Scaled Automation<a class="post-anchor" href="#scaled-automation" aria-label="Anchor link for: scaled-automation"><span aria-hidden="true">#</span></a>
+</h3>
+<p>If the system deployed to Canary works fine, its redeployment to the rest of servers requires extensive <em>automation</em> so that newer version can be rolled out as soon as possible.</p>
+<p>To control the deployment, extra <em>infrastructure</em> tooling is required in order to configure the <em>allocation</em> or <em>deallocation</em> of resources in case if scaling up or halting the deployments is required, respectively.</p>
+<p><strong>Canary deployment is often employed alongside the Rolling deployment strategy in order to bring best of the both worlds together.</strong></p>
+
+        </article>
+        <nav class="post-navigation">
+            <header class="post-navigation-title">
+                <h2>Read More Posts</h2>
+                <hr>
+            </header>
+            <div class="post-navigation-buttons">
+                <a rel="next" href="https://hamzamateen.github.io/thinkretions/blog/markdown/" aria-label="Next article">
+                    <span aria-hidden="true">&lt;&nbsp;[</span>Markdown Syntax Guide<span aria-hidden="true">]</span>
+                </a>
+                <span aria-hidden="true" role="separator">::</span>
+                <a rel="prev" href="https://hamzamateen.github.io/thinkretions/blog/go-interfaces-guide/" aria-label="Prev article">
+                    <span aria-hidden="true">[</span>Go Interfaces: A Beginner&#x27;s Guide<span aria-hidden="true">]&nbsp;&gt;</span>
+                </a>
+            </div>
+        </nav>
+    </main>
+    <footer class="footer">
+        <address class="socials">
+            <ul>
+                <li>
+                    <a class="social-link" rel="me" href="mailto:me@thinkretions.com" title="email">
+                        <svg role="img" aria-label="email">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/email.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a class="social-link" rel="me" href="https://github.com/HamzaMateen" title="github">
+                        <svg role="img" aria-label="github">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/github.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a class="social-link" rel="me" href="https://www.linkedin.com/in/hamzamateen765" title="linkedin">
+                        <svg role="img" aria-label="linkedin">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/linkedin.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </address>
+        <p class="copyright">
+            <span>© <time>2025</time></span>
+            <span>Powered by <a href="https://www.getzola.org">Zola</a></span>
+            <span>Theme by <a href="https://eyalkalderon.com">ebkalderon</a></span>
+        </p>
+    </footer>
+</body>
+
+</html>
