@@ -4,7 +4,7 @@ date = 2025-10-26
 authors = ["Hamza Mateen"]
 
 [taxonomies]
-tags = ["showcase", "shortcodes"]
+tags = ["programming", "concurrency"]
 +++
 
 ### Introduction
