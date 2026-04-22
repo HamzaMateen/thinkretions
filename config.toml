@@ -18,7 +18,7 @@ taxonomies = [
 minify_html = false
 
 [markdown]
-highlight_code = true
+# highlighting = true
 render_emoji = true
 bottom_footnotes = true
 
@@ -37,7 +37,7 @@ section_path = "blog/_index.md"
 max_posts = 10
 close_responsive_menu_on_resize = true
 copy_button = true
-favicon_emoji = "💭"
+favicon_emoji = "✍️"
 layout = "center"
 show_default_author = false
 
