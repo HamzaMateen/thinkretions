@@ -2,7 +2,7 @@
 # base_url = "https://thinkretions.com"
 base_url = "https://hamzamateen.github.io/thinkretions/"
 
-title = "thinkretions"
+title = "hamza mathink"
 description = "materializing the immaterial..."
 
 theme = "terminus"
@@ -37,7 +37,7 @@ section_path = "blog/_index.md"
 max_posts = 10
 close_responsive_menu_on_resize = true
 copy_button = true
-favicon_emoji = "✍️"
+favicon_emoji = "ᝰ🪶"
 layout = "center"
 show_default_author = false
 
@@ -46,7 +46,7 @@ main_menu = [
     # { name = "archive", url = "archive", trailing_slash = true },
     { name = "tags", url = "tags", trailing_slash = true },
     { name = "projects", url = "projects", trailing_slash = true },
-    { name = "github", url = "https://github.com/hamzamateen", new_tab = true },
+    { name = "miscellaneous", url = "misc", trailing_slash = true },
 ]
 
 socials = [
