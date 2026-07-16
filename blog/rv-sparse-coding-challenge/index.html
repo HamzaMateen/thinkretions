@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>RV-Sparse Coding Challenge Solution | LFX 2026 | hamza mathink</title>
+
+    <link rel="preload" href="https://hamzamateen.github.io/thinkretions/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://hamzamateen.github.io/thinkretions/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://hamzamateen.github.io/thinkretions/css/style.css?h=fd30ebca55fd38ab02dd">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>ᝰ🪶</text></svg>">
+    <script src="https://hamzamateen.github.io/thinkretions/js/auto-close-popover-on-resize.js?h=4ef87d6fc7b98b22e044" defer></script>
+    <script src="https://hamzamateen.github.io/thinkretions/js/copy-code-to-clipboard.js?h=6aac77c47d552a0ac847" defer></script>
+    <script src="https://hamzamateen.github.io/thinkretions/js/theme-switcher.js?h=f511cf3b81ddb6475538" defer></script>
+
+    <link rel="canonical" href="https://hamzamateen.github.io/thinkretions/blog/rv-sparse-coding-challenge/">
+    
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#211f1a">
+    <meta name="color-scheme" content="dark">
+
+    <meta property="og:title" content="RV-Sparse Coding Challenge Solution | LFX 2026">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://hamzamateen.github.io/thinkretions/blog/rv-sparse-coding-challenge/">
+    <meta property="og:description" content="materializing the immaterial...">
+    <meta property="og:site_name" content="hamza mathink">
+    <meta property="og:updated_time" content="2026-07-16T07:54:25.267259523+00:00">
+    <meta property="article:published_time" content="2026-04-22T00:00:00+00:00">
+</head>
+
+<body class="layout-center">
+    <header class="header">
+        <div class="header-container">
+            <span class="header-logo-container">
+                <a href="https://hamzamateen.github.io/thinkretions">
+                    <span class="logo">hamza mathink</span>
+                </a>
+            </span>
+        </div>
+        <nav class="main-menu" aria-label="Main Menu">
+            <a class="skip-to-content" href="#main">Skip to main content</a>
+            <button class="main-menu-dropdown-button" popovertarget="nav-menu">Menu</button>
+            <ul id="nav-menu" class="main-menu-items" aria-label="Site Navigation" popover>
+                <li><a href="https://hamzamateen.github.io/thinkretions/blog/">blog</a></li>
+                <li><a href="https://hamzamateen.github.io/thinkretions/tags/">tags</a></li>
+                <li><a href="https://hamzamateen.github.io/thinkretions/projects/">projects</a></li>
+                <li><a href="https://hamzamateen.github.io/thinkretions/misc/">miscellaneous</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main id="main">
+        <article class="post content">
+            <header>
+                <h1 class="post-title">
+                    <a href="https://hamzamateen.github.io/thinkretions/blog/rv-sparse-coding-challenge/">RV-Sparse Coding Challenge Solution | LFX 2026</a>
+                </h1>
+                <ul class="post-meta">
+                    <li title="Published on 2026-04-22"><time datetime="2026-04-22">2026.04.22</time></li>
+                    <li role="separator" aria-hidden="true">::</li>
+                    <li title="896 words"><time datetime="PT5M">5 min</time> read</li>
+                </ul>
+            </header>
+
+<h1 id="rv-sparse-coding-challenge">RV-Sparse Coding Challenge</h1>
+<h2 id="problem">Problem</h2>
+<p>Convert a dense row-major matrix into CSR format and compute <strong>y = A.x</strong> using the extracted sparse representation.</p>
+<p>Implement a  function that:</p>
+<ul>
+<li>Scans a row-major matrix A and identifies its non-zero elements.</li>
+<li>Extracts them into Compressed Sparse Row (CSR) format using caller-provided buffers.</li>
+<li>Computes the matrix-vector product <strong>y = A * x</strong> using the extracted CSR data.</li>
+<li>Write the result directly into a caller-provided output buffer.</li>
+</ul>
+<blockquote>
+<p>Critical constraint:</p>
+<p>The function must perform <strong>zero dynamic memory allocation</strong>. All memory is pre-allocated by the caller.</p>
+</blockquote>
+<h2 id="representation">Representation</h2>
+<p>To implement a solution this problem, first I needed to understand what:</p>
+<ul>
+<li>Sparse Matrix is</li>
+<li>CSR format looks like</li>
+<li>and why is it efficient than normal Matrix Vector multiplication</li>
+</ul>
+<p>From my understanding, some descriptions are in order:</p>
+<p><strong>Sparse Matrix</strong></p>
+<p>A matrix where most entries are zero or technically, it is a matrix whose ratio of <strong>zero</strong> elements to <strong>non-zero</strong> elements is &gt; 1, which effectively means that most of its entries are zero.</p>
+<p><strong>CSR Format</strong></p>
+<p>There are numerous ways to store a sparse matrix in memory, such as, Compress Coordinate (COO), Compressed Sparse Column (CSC), and Compressed Sparse Row (CSR) format. We employ CSR format in this problem.</p>
+<p>The CSR format uses 3 <strong>arrays</strong> to store complete information of a sparse matrix.</p>
+<ul>
+<li><code>values</code> array contains all <strong>non-zero</strong> elements of the matrix.</li>
+<li><code>column_indices</code> array stores the <strong>column index</strong> of <code>values</code> entries in the 	original dense matrix.</li>
+<li><code>row_ptrs</code> array defines where <strong>each row starts and ends</strong> inside the <code>values</code> array, corresponding to original matrix.</li>
+</ul>
+<p><strong>Efficiency</strong></p>
+<p>The sparse matrix representation achieves efficiency by completely eliminating the need to process <strong>zero</strong> entries.  Since <strong>zeroed</strong> entries aren't stored, they aren't multiplied with the target vector, saving cycles in proportion to count of <strong>zero</strong> entries.</p>
+<p>The following example helped me understand the process a lot better.</p>
+<h6 id="example">Example:</h6>
+<p>Consider the following loosely sparse matrix:</p>
+<p>A = [<br />
+[10,  0, 20],<br />
+[ 0, 30,  0],<br />
+[40,  0, 50]<br />
+]</p>
+<p>can be stored in CSR format as:</p>
+<p><code>values</code>   = [10, 20, 30, 40, 50]<br />
+<code>col_idx</code>  = [0, 2, 1, 0, 2]<br />
+<code>row_ptrs</code> = [0, 2, 3, 5]</p>
+<p>The <code>row_ptrs</code> array works more as a <strong>slicing</strong> guide for <code>values</code> array, for example:</p>
+<p>first_row = values[<strong>0:2</strong>]<br />
+second_row = values[<strong>2:3</strong>]<br />
+third_row = values[<strong>3:5</strong>]</p>
+<h2 id="approach">Approach</h2>
+<p>This problem consists of two parts:</p>
+<ol>
+<li>Storing the user provided <strong>matrix</strong> (A) into a <strong>sparse matrix</strong> representation</li>
+<li>Multiplying the sparse matrix with an <strong>input vector</strong> array.</li>
+</ol>
+<p>I personally solved these in reverse order because I first needed the intuition for sparse vector multiplication itself, so I implemented the <strong>spmv_csr</strong> routine first.</p>
+<h6 id="sparse-matrix-multiplication">Sparse Matrix Multiplication</h6>
+<p>It works as follows:</p>
+<ol>
+<li>Take in sparse parameters such as <strong>val, col_idx, row_ptr</strong> , input and output vectors: <strong>x,y</strong> and <strong>size</strong> of input/output vector.</li>
+<li>Each output element <strong>y[i]</strong> is the dot product of row <strong>i</strong> with vector <strong>x</strong></li>
+<li>For each entry in <strong>y</strong>, extract <strong>[start,end)</strong> indices from <strong>row_ptr</strong>.</li>
+<li>Compute <strong>sum</strong> for each entry of <strong>y</strong> by using <strong>col_idx[j]</strong> to select corresponding element from <strong>x</strong> to be multiplied with current element from <strong>values</strong> array.</li>
+<li>Update output vector with newly computed <strong>sum</strong>.</li>
+</ol>
+<p>I tested this implementation with some examples and it worked! Next I moved on to solving the first part.</p>
+<p><strong>Sparse Matrix construction</strong></p>
+<ol>
+<li>Scan matrix <strong>A</strong> in row-major order.</li>
+<li>If encounter <strong>non-zero</strong> element:
+<ol>
+<li>Append it to <strong>values</strong> array.</li>
+<li>Append the current column <strong>col</strong> to <strong>col_indices</strong> array.</li>
+<li>Increment <strong>nnz</strong> (non-zero elements count)</li>
+</ol>
+</li>
+</ol>
+<p>Constructing the <strong>row_ptrs</strong> array felt tricky at first. The mismatch between <strong>row_ptrs</strong> and a single <strong>row's</strong> length felt off-putting, but then I reasoned that I can initialize the <strong>row_ptrs</strong> with <strong>0</strong> because every instance would always start with 0, only the later boundaries are not known. With one less runtime assignment, the rest of <strong>row_ptrs</strong> could be filled within the outer loop.</p>
+<p>Therefore:</p>
+<ol start="3">
+<li>The next boundary is always the current number of non-zero elements (<strong>nnz</strong>) , which I add to <strong>row_ptrs</strong> array after a row is processed.</li>
+<li>This completes the sparse matrix construction, after which, pass the required arguments to <strong>spmv_csr()</strong> function to perform <strong>sparse multiplication</strong></li>
+<li>As final step, update the <strong>out_nnz</strong> variable.</li>
+</ol>
+<h2 id="problems-i-faced">Problems I faced</h2>
+<p><strong>Information loss (wrong type)</strong>: I declared <strong>sum</strong> in <strong>spmv_csr</strong> as <code>int</code> instead of <code>double</code> which resulted in test FAILS because the results weren't converging to the tolerable threshold due to loss of information bits.</p>
+<p><strong>Off-by-one error</strong>: As mentioned above, I got logic for <code>row_ptrs</code> wrong by shifting boundaries by one, to the left, so <strong>0th</strong> value was being replaced.</p>
+<p><strong>Incorrect Pointer arithmetic</strong>  I wrote following code to located current non-zero value in the matrix:</p>
+<p><code>double value = *(A + row * cols * sizeof(double) + col * sizeof(double));</code></p>
+<p>which is <strong>incorrect</strong> because in C/C++, the indexing is already scaled by size of <strong>data-type</strong> being pointed to, whereas I was thinking in terms of per-byte traversal.</p>
+<h2 id="space-time-complexity">Space-time complexity</h2>
+<p><strong>Time</strong>: O(nnz) for sparse matrix multiplication</p>
+<p><strong>Space</strong>: O(nnz) for storing in CSR format</p>
+<p>This implies that sparser the matrix, the better. <strong>Conversion of dense matrix to CSR is O(rows * cols) though!</strong></p>
+<p>I observed one more thing: <em>The critical constraint mentioned kind-of made the problem easy for me to reason through because I didn't have to worry about dynamic memory management up front.</em></p>
+<h2 id="results"><strong>Results</strong></h2>
+<p>Sparse Multiply</p>
+<p><img src="https://hamzamateen.github.io/thinkretions/blog/rv-sparse-coding-challenge/SpMV_CSR.png" alt="a" /></p>
+<p>CSR Construction</p>
+<p><img src="https://hamzamateen.github.io/thinkretions/blog/rv-sparse-coding-challenge/CSR_construction.png" alt="b" /></p>
+<p><strong>Test results</strong>:</p>
+<p><img src="https://hamzamateen.github.io/thinkretions/blog/rv-sparse-coding-challenge/results.png" alt="c" /></p>
+<hr />
+<p><em><strong>Thank you!</strong></em></p>
+
+        </article>
+    </main>
+    <footer class="footer">
+        <address class="socials">
+            <ul>
+                <li>
+                    <a class="social-link" rel="me" href="mailto:me@thinkretions.com" title="email">
+                        <svg role="img" aria-label="email">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/email.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a class="social-link" rel="me" href="https://github.com/HamzaMateen" title="github">
+                        <svg role="img" aria-label="github">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/github.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a class="social-link" rel="me" href="https://www.linkedin.com/in/hamzamateen765" title="linkedin">
+                        <svg role="img" aria-label="linkedin">
+                            <use aria-hidden="true" href="https://hamzamateen.github.io/thinkretions/images/social_icons/linkedin.svg#icon" />
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </address>
+        <p class="copyright">
+            <span>© <time>2026</time> </span>
+            <!-- <span>Powered by <a href="https://www.getzola.org">Zola</a></span> -->
+            <!-- <span>Theme by <a href="https://eyalkalderon.com">ebkalderon</a></span> -->
+        </p>
+    </footer>
+</body>
+
+</html>
