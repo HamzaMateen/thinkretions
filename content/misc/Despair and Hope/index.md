@@ -11,7 +11,7 @@ readingTime: 1
 slug: "despair-and-hope"
 ---
 
-_In a world full sorrows_  
+_In a world full of sorrows_  
 _and everlasting despair_  
 _I am worried less about tomorrow_  
 _fighting a fraction of today's fear_  
